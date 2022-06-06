@@ -76,7 +76,7 @@ contract SimpleBank {
       // 1. Add the appropriate keyword so that this function can receive ether
     
       // 2. Users should be enrolled before they can make deposits
-      // ********
+      require(enrolled[msg.sender] == true);
       // 3. Add the amount to the user's balance. Hint: the amount can be
       //    accessed from of the global variable `msg`
       balances[msg.sender] += msg.value;
@@ -90,23 +90,25 @@ contract SimpleBank {
     /// @dev This does not return any excess ether sent to it
     /// @param withdrawAmount amount you want to withdraw
     /// @return The balance remaining for the user
-    function withdraw(uint withdrawAmount) public returns (uint) {
+    function withdraw(uint withdrawAmount) public payable returns (uint) {
       // If the sender's balance is at least the amount they want to withdraw,
       // Subtract the amount from the sender's balance, and try to send that amount of ether
       // to the user attempting to withdraw. 
       // return the user's balance.
 
       // 1. Use a require expression to guard/ensure sender has enough funds
-      require(withdrawAmount <= balances[msg.sender]);
+      require(balances[msg.sender] >= withdrawAmount);
       
       // 2. Transfer Eth to the sender and decrement the withdrawal amount from
       //    sender's balance
 
       balances[msg.sender] -= withdrawAmount;
+      msg.sender.transfer(msg.value);
       
 
       // 3. Emit the appropriate event for this message
       emit LogWithdrawal(msg.sender, withdrawAmount, balances[msg.sender]);
-      return balances[msg.sender];
+      
     }
+
 }
